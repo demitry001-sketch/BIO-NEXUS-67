@@ -3712,6 +3712,379 @@ requestAnimationFrame(()=>{ if(S.race==='nordico') activateLyraMesh(); });
 
 </script>
 </body>
+<!--
+╔══════════════════════════════════════════════════════════════════╗
+║     BIO NEXUS 67 — MOBILE PATCH v1.0                           ║
+║     Pega esto JUSTO ANTES de </body> en tu HTML                 ║
+║     ✅ No rompe nada del juego en PC                             ║
+╚══════════════════════════════════════════════════════════════════╝
+-->
+
+<style>
+/* ── MOBILE PATCH: solo activa en pantallas ≤768px ─────────────── */
+@media (max-width: 768px) {
+
+  /* ── 1. CANVAS: ocupa toda la pantalla ─────────────────────── */
+  canvas {
+    position: fixed !important;
+    top: 0 !important; left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    touch-action: none;
+  }
+
+  /* ── 2. HUD PRINCIPAL: reducir tamaño base ──────────────────── */
+  #hud, .hud, [id*="hud"] {
+    font-size: 11px !important;
+    transform-origin: top left;
+  }
+
+  /* ── 3. PANEL DE STATS ARRIBA-IZQUIERDA (HP/MP/XP) ─────────── */
+  #player-info, .player-stats, [id*="player-info"],
+  [id*="playerInfo"], [id*="player_info"] {
+    position: fixed !important;
+    top: 4px !important;
+    left: 4px !important;
+    width: auto !important;
+    max-width: 160px !important;
+    font-size: 10px !important;
+    padding: 4px 6px !important;
+    background: rgba(0,0,0,0.75) !important;
+    border-radius: 4px !important;
+    z-index: 900 !important;
+  }
+
+  /* Barras HP/MP/XP más compactas */
+  .hp-bar, .mp-bar, .xp-bar,
+  [class*="hp-bar"], [class*="mp-bar"], [class*="xp-bar"],
+  [id*="hpBar"], [id*="mpBar"], [id*="xpBar"] {
+    height: 6px !important;
+    margin: 2px 0 !important;
+  }
+
+  /* ── 4. PANEL STATUS ARRIBA-DERECHA (PING/FPS/PLAYERS) ──────── */
+  #status-panel, .status-panel, [id*="status-panel"],
+  [id*="statusPanel"], .online-status {
+    position: fixed !important;
+    top: 4px !important;
+    right: 4px !important;
+    font-size: 9px !important;
+    line-height: 1.3 !important;
+    padding: 3px 6px !important;
+    background: rgba(0,0,0,0.75) !important;
+    border-radius: 4px !important;
+    text-align: right !important;
+  }
+
+  /* ── 5. BARRA DE HABILIDADES (HOTBAR) ───────────────────────── */
+  #hotbar, .hotbar, [id*="hotbar"], .skills-bar, [id*="skillBar"] {
+    position: fixed !important;
+    bottom: 60px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    display: flex !important;
+    gap: 4px !important;
+    z-index: 910 !important;
+    background: rgba(0,0,0,0.6) !important;
+    padding: 4px !important;
+    border-radius: 8px !important;
+  }
+
+  /* Slots de habilidad: más pequeños y táctiles */
+  .skill-slot, .hotbar-slot, [class*="skill-slot"],
+  [class*="hotbar"] > div, [id*="skill"] > div {
+    width: 42px !important;
+    height: 42px !important;
+    font-size: 18px !important;
+    line-height: 42px !important;
+    text-align: center !important;
+    cursor: pointer !important;
+    -webkit-tap-highlight-color: transparent !important;
+    touch-action: manipulation !important;
+  }
+
+  /* ── 6. BOTONES DERECHA (INV/MAP/STATS/CHAT...) ─────────────── */
+  #side-buttons, .side-menu, [id*="sideButtons"],
+  .menu-buttons, [id*="menuBtns"] {
+    position: fixed !important;
+    right: 4px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 3px !important;
+    z-index: 910 !important;
+  }
+
+  .side-btn, [id*="btnInv"], [id*="btnMap"],
+  [id*="btnStats"], [id*="btnChat"] {
+    font-size: 9px !important;
+    padding: 5px 7px !important;
+    min-width: 36px !important;
+  }
+
+  /* ── 7. NOTIFICACIÓN "MUERTO / RESPAWNEANDO" ─────────────────── */
+  /* Este es el problema principal en tus screenshots */
+  .death-screen, .respawn-screen, [id*="deathScreen"],
+  [id*="respawn"], [class*="death"], [class*="muerto"],
+  [class*="respawn"] {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 75vw !important;
+    max-width: 280px !important;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+    z-index: 9999 !important;
+    border-radius: 8px !important;
+    text-align: center !important;
+    /* Una sola a la vez, no apiladas */
+    max-height: 80px !important;
+    overflow: hidden !important;
+  }
+
+  /* Ocultar notificaciones duplicadas (mantener solo 1) */
+  .death-screen ~ .death-screen,
+  .respawn-screen ~ .respawn-screen,
+  [class*="death"] ~ [class*="death"],
+  [class*="respawn"] ~ [class*="respawn"] {
+    display: none !important;
+  }
+
+  /* ── 8. PANELES FLOTANTES → pantalla completa en móvil ──────── */
+  #panel-inventory, #panel-map, #panel-stats,
+  #panel-chat, #panel-quests, #panel-achievements,
+  #panel-config, #panel-settings,
+  [id*="panelInv"], [id*="panelMap"], [id*="panelStats"],
+  [id*="panelChat"], [id*="panelQuest"], [id*="panelAch"],
+  .game-panel, [class*="panel-"] {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+    overflow-y: auto !important;
+    z-index: 9000 !important;
+    font-size: 12px !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* ── 9. LOG DE COMBATE (mensajes izquierda) ─────────────────── */
+  #combat-log, .combat-log, [id*="combatLog"],
+  [id*="chat-log"], .log-panel {
+    position: fixed !important;
+    bottom: 110px !important;
+    left: 4px !important;
+    width: 55vw !important;
+    max-height: 100px !important;
+    overflow: hidden !important;
+    font-size: 9px !important;
+    line-height: 1.3 !important;
+    background: rgba(0,0,0,0.5) !important;
+    padding: 4px !important;
+    border-radius: 4px !important;
+  }
+
+  /* Solo últimas 4 líneas en log */
+  #combat-log > *:not(:nth-last-child(-n+4)),
+  .combat-log > *:not(:nth-last-child(-n+4)) {
+    display: none !important;
+  }
+
+  /* ── 10. MINIMAPA ───────────────────────────────────────────── */
+  #minimap, .minimap, [id*="miniMap"] {
+    width: 80px !important;
+    height: 80px !important;
+    position: fixed !important;
+    bottom: 110px !important;
+    right: 44px !important;
+  }
+
+  /* ── 11. COORDENADAS / INFO INFERIOR ─────────────────────────── */
+  #coords, .coords, [id*="coords"], [id*="position"] {
+    position: fixed !important;
+    bottom: 108px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    font-size: 9px !important;
+    background: rgba(0,0,0,0.5) !important;
+    padding: 2px 6px !important;
+    border-radius: 3px !important;
+    white-space: nowrap !important;
+  }
+
+  /* ── 12. JOYSTICK VIRTUAL (SE AÑADE CON JS ABAJO) ───────────── */
+  #mobile-joystick-zone {
+    position: fixed !important;
+    bottom: 16px !important;
+    left: 16px !important;
+    width: 120px !important;
+    height: 120px !important;
+    z-index: 950 !important;
+  }
+
+  /* ── 13. DESHABILITAR SELECCIÓN DE TEXTO ────────────────────── */
+  * {
+    -webkit-user-select: none !important;
+    user-select: none !important;
+  }
+  input, textarea {
+    -webkit-user-select: text !important;
+    user-select: text !important;
+  }
+}
+</style>
+
+<script>
+/* ── MOBILE PATCH JS: solo en móvil ────────────────────────── */
+(function() {
+  if (window.innerWidth > 768) return; // ← no afecta PC
+
+  /* ── A. JOYSTICK VIRTUAL ────────────────────────────────── */
+  const zone = document.createElement('div');
+  zone.id = 'mobile-joystick-zone';
+  zone.innerHTML = `
+    <svg width="120" height="120" style="opacity:0.45">
+      <circle cx="60" cy="60" r="55" fill="none"
+        stroke="#00ff88" stroke-width="1.5" stroke-dasharray="6 4"/>
+      <circle id="joy-dot" cx="60" cy="60" r="20"
+        fill="#00ff8830" stroke="#00ff88" stroke-width="1.5"/>
+    </svg>`;
+  zone.style.cssText = `
+    position:fixed;bottom:16px;left:16px;
+    width:120px;height:120px;z-index:950;touch-action:none;`;
+  document.body.appendChild(zone);
+
+  const dot = document.getElementById('joy-dot');
+  let joyActive = false, joyOrigin = {x:0,y:0};
+  const KEYS = { up:false, down:false, left:false, right:false };
+
+  function fireKey(code, down) {
+    const type = down ? 'keydown' : 'keyup';
+    document.dispatchEvent(new KeyboardEvent(type, {code, key:code, bubbles:true}));
+    window.dispatchEvent(new KeyboardEvent(type, {code, key:code, bubbles:true}));
+  }
+  function setKey(dir, val) {
+    if (KEYS[dir] === val) return;
+    KEYS[dir] = val;
+    const map = {up:'KeyW',down:'KeyS',left:'KeyA',right:'KeyD'};
+    fireKey(map[dir], val);
+  }
+  function updateJoy(x, y) {
+    const dx = x - joyOrigin.x, dy = y - joyOrigin.y;
+    const dist = Math.sqrt(dx*dx+dy*dy);
+    const maxR = 35, clamp = Math.min(dist, maxR);
+    const nx = dist>0 ? dx/dist*clamp : 0;
+    const ny = dist>0 ? dy/dist*clamp : 0;
+    dot.setAttribute('cx', 60+nx);
+    dot.setAttribute('cy', 60+ny);
+    const DEAD = 10;
+    setKey('up',    dy < -DEAD);
+    setKey('down',  dy >  DEAD);
+    setKey('left',  dx < -DEAD);
+    setKey('right', dx >  DEAD);
+  }
+
+  zone.addEventListener('touchstart', e=>{
+    e.preventDefault();
+    joyActive = true;
+    const r = zone.getBoundingClientRect();
+    joyOrigin = {x: r.left+60, y: r.top+60};
+    updateJoy(e.touches[0].clientX, e.touches[0].clientY);
+  }, {passive:false});
+  zone.addEventListener('touchmove', e=>{
+    e.preventDefault();
+    if (joyActive) updateJoy(e.touches[0].clientX, e.touches[0].clientY);
+  }, {passive:false});
+  zone.addEventListener('touchend', e=>{
+    e.preventDefault();
+    joyActive = false;
+    dot.setAttribute('cx', 60); dot.setAttribute('cy', 60);
+    ['up','down','left','right'].forEach(d=>setKey(d,false));
+  }, {passive:false});
+
+  /* ── B. BOTÓN DE ACCIÓN (ATAQUE) ───────────────────────────── */
+  const atkBtn = document.createElement('button');
+  atkBtn.id = 'mobile-attack-btn';
+  atkBtn.textContent = '⚔';
+  atkBtn.style.cssText = `
+    position:fixed;bottom:16px;right:16px;
+    width:70px;height:70px;border-radius:50%;
+    background:#00ff8820;border:2px solid #00ff88;
+    color:#00ff88;font-size:28px;
+    z-index:950;touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;`;
+  document.body.appendChild(atkBtn);
+
+  atkBtn.addEventListener('touchstart', e=>{
+    e.preventDefault();
+    fireKey('Space', true);
+    atkBtn.style.background = '#00ff8850';
+  }, {passive:false});
+  atkBtn.addEventListener('touchend', e=>{
+    e.preventDefault();
+    fireKey('Space', false);
+    atkBtn.style.background = '#00ff8820';
+  }, {passive:false});
+
+  /* ── C. SWIPE para abrir/cerrar paneles ───────────────────── */
+  let swipeStartX = 0, swipeStartY = 0;
+  document.addEventListener('touchstart', e=>{
+    swipeStartX = e.touches[0].clientX;
+    swipeStartY = e.touches[0].clientY;
+  }, {passive:true});
+  document.addEventListener('touchend', e=>{
+    const dx = e.changedTouches[0].clientX - swipeStartX;
+    const dy = e.changedTouches[0].clientY - swipeStartY;
+    // Swipe izquierda desde borde derecho → abre menú
+    if (swipeStartX > window.innerWidth*0.8 && dx < -60 && Math.abs(dy)<60) {
+      document.dispatchEvent(new KeyboardEvent('keydown',
+        {code:'Escape',key:'Escape',bubbles:true}));
+    }
+  }, {passive:true});
+
+  /* ── D. OCULTAR NOTIFICACIONES DUPLICADAS ──────────────────── */
+  // Cada 500ms, si hay múltiples paneles de muerte visibles,
+  // oculta todos excepto el más reciente
+  setInterval(()=>{
+    const selectors = [
+      '[class*="death"]:not([style*="display:none"])',
+      '[class*="muerto"]:not([style*="display:none"])',
+      '[class*="respawn"]:not([style*="display:none"])',
+      '[id*="death"]:not([style*="display:none"])',
+      '[id*="respawn"]:not([style*="display:none"])'
+    ];
+    selectors.forEach(sel=>{
+      const els = document.querySelectorAll(sel);
+      if (els.length > 1) {
+        for (let i=0; i<els.length-1; i++)
+          els[i].style.display='none';
+      }
+    });
+  }, 500);
+
+  /* ── E. PREVENIR ZOOM DE DOBLE TAP ─────────────────────────── */
+  let lastTap = 0;
+  document.addEventListener('touchend', e=>{
+    const now = Date.now();
+    if (now - lastTap < 300) e.preventDefault();
+    lastTap = now;
+  }, {passive:false});
+
+  console.log('[BIO NEXUS 67] Mobile patch v1.0 activado');
+})();
+</script>
+<!--
+╔══════════════════════════════════════════════════════╗
+║  FIN DEL MOBILE PATCH                                ║
+║  Dónde pegarlo: justo antes de </body>              ║
+║  Verifica en DevTools → Device Mode (F12 → móvil)   ║
+╚══════════════════════════════════════════════════════╝
+-->
 </html>
 <!--
 ════════════════════════════════════════════════════════════════════════
